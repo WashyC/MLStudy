@@ -1,9 +1,7 @@
-""" How to use CNN
+""" cnn.py
 """
 # %%
 from matplotlib import pyplot as plt
-
-from helper.plot import fit_curves
 from tensorflow.keras.backend import clear_session
 from tensorflow.keras.datasets import fashion_mnist
 from tensorflow.keras.layers import Conv2D
@@ -12,7 +10,9 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Reshape
 from tensorflow.keras.models import Sequential
 
-# %%
+from helper.plot import fit_curves
+
+# %% prepare the dataset
 (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 x_train, x_test = x_train / 255.0, x_test / 255.0
 print('x_train.shape:', x_train.shape)
@@ -22,27 +22,26 @@ plt.show()
 plt.imshow(x_train[1])
 plt.show()
 
-# %%
+# %% model definition
 optimizer, loss = 'adam', 'sparse_categorical_crossentropy'
 metric = ['accuracy']
 
 
-# simple model
-# No hidden layer
+# simple network without any hidden layer
 def fn_simple_model():
   clear_session()
   md = Sequential([
       Flatten(input_shape=(28, 28)),
       Dense(10, activation='softmax'),
   ])
+  md.summary()
   md.compile(optimizer=optimizer, loss=loss, metrics=metric)
   r = md.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=15)
   fit_curves(r)
   md.evaluate(x_test, y_test)
 
 
-# artificial nural network
-# one hidden network
+# deep nural network with one hidden network
 def fn_ann_model():
   clear_session()
   md = Sequential([
@@ -50,6 +49,7 @@ def fn_ann_model():
       Dense(512, activation='relu'),
       Dense(10, activation='softmax'),
   ])
+  md.summary()
   md.compile(optimizer=optimizer, loss=loss, metrics=metric)
   r = md.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=15)
   fit_curves(r)
@@ -70,6 +70,7 @@ def fn_cnn_model():
       Dense(512, activation='relu'),
       Dense(10, activation='softmax')
   ])
+  md.summary()
   md.compile(optimizer=optimizer, loss=loss, metrics=metric)
   r = md.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=15)
   fit_curves(r)

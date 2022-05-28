@@ -5,14 +5,18 @@ Simple RNN Code
 # %%
 import matplotlib.pyplot as plt
 import numpy as np
-
 from tensorflow.keras import backend
 from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
-# %%
-series = np.sin(0.1 * np.arange(200)) + np.random.randn(200) * 0.1
+# %% time series data with noise
+series = np.sin(0.1 * np.arange(200))
+plt.plot(series)
+plt.show()
+
+noise = np.random.randn(200) * 0.1
+series += noise
 plt.plot(series)
 plt.show()
 
@@ -33,7 +37,7 @@ Y = np.array(Y)
 N = len(X)
 print('X.shape', X.shape, 'Y.shape', Y.shape)
 
-# %%
+# %% model definition and training
 backend.clear_session()
 md_v1 = Sequential([layers.Input(shape=(T,)), layers.Dense(1)])
 md_v1.compile(loss='mse', optimizer=Adam(learning_rate=0.01))

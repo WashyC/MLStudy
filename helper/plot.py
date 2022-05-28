@@ -2,16 +2,16 @@
 import matplotlib.pyplot as plt
 
 
-def fit_curves(r, accuracy=False):
+def fit_curves(history, accuracy=False):
   # print loss curve
-  plt.plot(r.history['loss'], label='loss')
-  plt.plot(r.history['val_loss'], label='val_loss')
+  plt.plot(history.history['loss'], label='loss')
+  plt.plot(history.history['val_loss'], label='val_loss')
   plt.legend()
 
   # print accuracy curve
   if accuracy:
-    plt.plot(r.history['accuracy'], label='acc')
-    plt.plot(r.history['val_accuracy'], label='val_acc')
+    plt.plot(history.history['accuracy'], label='acc')
+    plt.plot(history.history['val_accuracy'], label='val_acc')
     plt.legend()
 
   # show the plot
