@@ -1,6 +1,8 @@
 """ callback.py
+use custom callback to stop training
 """
 # %%
+from helper.plot import fit_curves
 from tensorflow.keras.backend import clear_session
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.datasets import fashion_mnist
@@ -8,17 +10,12 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.models import Sequential
 
-from helper.plot import fit_curves
-
 # %% prepare the dataset
 (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
+
 # %% model definition
-optimizer, loss = 'adam', 'sparse_categorical_crossentropy'
-metric = ['accuracy']
-
-
 def fn_model():
   clear_session()
   md = Sequential([
@@ -26,8 +23,9 @@ def fn_model():
       Dense(1024, activation='relu'),
       Dense(10, activation='softmax'),
   ])
-  md.summary()
-  md.compile(optimizer=optimizer, loss=loss, metrics=metric)
+  md.compile(optimizer='adam',
+             loss='sparse_categorical_crossentropy',
+             metrics=['accuracy'])
   return md
 
 
@@ -40,14 +38,13 @@ class MyCallback(Callback):
       self.model.stop_training = True
 
 
-# %%
-if __name__ == '__main__':
-  # %%
-  model = fn_model()
-  r = model.fit(x_train,
-                y_train,
-                validation_data=(x_test, y_test),
-                epochs=15,
-                callbacks=[MyCallback()])
-  fit_curves(r)
-  model.evaluate(x_test, y_test)
+# %% train model
+model = fn_model()
+model.summary()
+hs = model.fit(x_train,
+               y_train,
+               validation_data=(x_test, y_test),
+               epochs=15,
+               callbacks=[MyCallback()])
+fit_curves(hs)
+model.evaluate(x_test, y_test)

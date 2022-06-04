@@ -11,25 +11,23 @@
 # %%
 
 import numpy as np
-import tensorflow_datasets as tfds
-
+from tensorflow.keras.backend import clear_session
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Embedding
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import Tokenizer
+import tensorflow_datasets as tfds
 
-# %%
-# Load dataset
+# %% Load dataset
 imdb, info = tfds.load('imdb_reviews', with_info=True, as_supervised=True)
 # check dataset samples
 print(info)
 for rev in imdb['train'].take(2):
   print(rev)
 
-# %%
-# Prepare the dataset
+# %% Prepare the dataset
 train_sentences, train_labels = [], []
 for review, label in imdb['train']:
   train_sentences.append(review.numpy().decode('utf8'))
@@ -42,8 +40,7 @@ for review, label in imdb['test']:
   test_labels.append(label.numpy())
 test_labels = np.array(test_labels)
 
-# %%
-# Tokenize the data
+# %% Tokenize the data
 vocab_size = 10000
 max_length = 120
 
@@ -60,8 +57,8 @@ test_padded = pad_sequences(test_sentences,
                             maxlen=max_length,
                             truncating='post')
 
-# %%
-# Build and train the model
+# %% Build and train the model
+clear_session()
 model = Sequential([
     Embedding(vocab_size, 16, input_length=max_length),
     Flatten(),
@@ -79,8 +76,7 @@ model.fit(train_padded,
           epochs=10,
           validation_data=(test_padded, test_labels))
 
-# %%
-# Check the word features
+# %% Check the word features
 index_word = tokenizer.index_word
 embedding_weight = model.layers[0].get_weights()[0]
 print(embedding_weight.shape)
@@ -88,8 +84,7 @@ print(embedding_weight.shape)
 for i in range(1, 10):
   print(index_word[i], embedding_weight[i])
 
-# %%
-# create visualization
+# %% create visualization
 # https://projector.tensorflow.org/
 with open('meta.tsv', 'w', encoding='utf-8') as out_m, \
   open('vectors.tsv', 'w', encoding='utf-8') as out_v:

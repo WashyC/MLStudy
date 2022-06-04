@@ -160,4 +160,5 @@ cython_debug/
 .idea/
 dataset/*
 pre_trained_model/*
+tmp
 !*.gitkeep

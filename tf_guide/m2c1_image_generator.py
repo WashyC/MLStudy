@@ -19,6 +19,7 @@ from glob import glob
 import os
 
 from helper.plot import fit_curves
+from sklearn import datasets
 from tensorflow.keras.backend import clear_session
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -38,7 +39,8 @@ if not os.path.exists('tmp'):
 
 
 # %%
-def fn_get_model():
+def fn_model():
+  clear_session()
   md = Sequential([
       # The input shape is 300x300 with 3 bytes color
       Input(shape=(300, 300, 3)),
@@ -73,53 +75,53 @@ def fn_get_model():
   return md
 
 
-# %%
-def fn_train():
-  clear_session()
+# %% get dataset
+def fn_dataset():
   # training data
   print('train dataset count =>')
   print('\t horse', len(glob(f'{DATA_PATH}/train/horses/*')))
   print('\t humans', len(glob(f'{DATA_PATH}/train/humans/*')))
 
-  # validation dataset
-  print('validation dataset count =>')
-  print('\t horse', len(glob(f'{DATA_PATH}/validation/horses/*')))
-  print('\t humans', len(glob(f'{DATA_PATH}/validation/humans/*')))
-
-  train_datagen = ImageDataGenerator(rescale=1.0 / 255)
-  train_generator = train_datagen.flow_from_directory(
+  train_data_generator = ImageDataGenerator(rescale=1.0 / 255)
+  train_data = train_data_generator.flow_from_directory(
       os.path.join(DATA_PATH, 'train'),  # Source directory for training images
       target_size=(300, 300),  # All images will be resized to 300x300
       batch_size=32,
       class_mode='binary',  # To use binary_crossentropy loss, labels = binary
   )
 
-  validation_datagen = ImageDataGenerator(rescale=1.0 / 255)
-  validation_generator = validation_datagen.flow_from_directory(
+  # validation dataset
+  print('validation dataset count =>')
+  print('\t horse', len(glob(f'{DATA_PATH}/validation/horses/*')))
+  print('\t humans', len(glob(f'{DATA_PATH}/validation/humans/*')))
+
+  validation_data_generator = ImageDataGenerator(rescale=1.0 / 255)
+  validation_data = validation_data_generator.flow_from_directory(
       os.path.join(DATA_PATH, 'validation'),  # Directory for validation images
       target_size=(300, 300),  # All images will be resized to 300x300
       batch_size=32,
       class_mode='binary',  # To use binary_crossentropy loss, labels = binary
   )
 
-  model = fn_get_model()
-  model.summary()
-  r = model.fit(
-      train_generator,
-      steps_per_epoch=8,
-      callbacks=[
-          EarlyStopping(patience=10),
-          ModelCheckpoint(MODEL_SAVE_PATH,
-                          save_weights_only=True,
-                          save_best_only=True),
-      ],
-      epochs=50,
-      verbose=1,
-      validation_data=validation_generator,
-      validation_steps=8,
-  )
-  fit_curves(r)
+  return train_data, validation_data
 
 
-if __name__ == '__main__':
-  fn_train()
+# %% train model
+dataset = fn_dataset()
+model = fn_model()
+model.summary()
+r = model.fit(
+    dataset[0],
+    steps_per_epoch=8,
+    callbacks=[
+        EarlyStopping(patience=10),
+        ModelCheckpoint(MODEL_SAVE_PATH,
+                        save_weights_only=True,
+                        save_best_only=True),
+    ],
+    epochs=50,
+    verbose=1,
+    validation_data=dataset[1],
+    validation_steps=8,
+)
+fit_curves(r)

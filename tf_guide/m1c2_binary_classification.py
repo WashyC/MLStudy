@@ -3,15 +3,15 @@ without any hidden layer
 """
 
 # %%
+from helper.plot import fit_curves
 import numpy as np
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from tensorflow.keras.backend import clear_session
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Sequential
-
-from helper.plot import fit_curves
 
 # %% load the data
 data = load_breast_cancer()
@@ -29,16 +29,21 @@ scaler = StandardScaler()
 x_train = scaler.fit_transform(x_train)
 x_test = scaler.transform(x_test)
 
-# %% model definition
-md_classification = Sequential([
-    Input((D,)),
-    Dense(1, activation='sigmoid'),
-])
 
-# %% configure and train
-md_classification.compile(optimizer='adam',
-                          loss='binary_crossentropy',
-                          metrics=['accuracy'])
+# %% model definition
+def fn_model():
+  clear_session()
+  md = Sequential([
+      Input((D,)),
+      Dense(1, activation='sigmoid'),
+  ])
+  md.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+  return md
+
+
+# %% train the model
+md_classification = fn_model()
+md_classification.summary()
 history = md_classification.fit(x_train,
                                 y_train,
                                 validation_data=(x_test, y_test),

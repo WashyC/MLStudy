@@ -1,0 +1,42 @@
+{
+  "editor.tabSize": 2,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.rulers": [81],
+  "files.trimFinalNewlines": false,
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.watcherExclude": {
+    "**/.bloop": true,
+    "**/.metals": true,
+    "**/.ammonite": true,
+    "**/build": true
+  },
+  "python.defaultInterpreterPath": "/usr/bin/python",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": true,
+  "python.formatting.provider": "yapf",
+  "python.sortImports.args": ["--profile", "google"],
+  "python.formatting.yapfArgs": [
+    "--style",
+    "{based_on_style: google, indent_width: 2}"
+  ],
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true,
+      "source.organizeImports": true
+    }
+  },
+  "prettier.bracketSpacing": false,
+  "prettier.jsxBracketSameLine": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.quoteProps": "as-needed",
+  "prettier.singleQuote": true,
+  "prettier.tabWidth": 2,
+  "prettier.trailingComma": "all",
+  "prettier.useEditorConfig": true,
+  "prettier.useTabs": false
+}

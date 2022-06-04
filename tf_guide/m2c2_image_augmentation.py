@@ -17,6 +17,7 @@ from glob import glob
 import os.path
 
 from helper.plot import fit_curves
+import numpy as np
 from tensorflow.keras import Model
 from tensorflow.keras.backend import clear_session
 from tensorflow.keras.callbacks import EarlyStopping
@@ -39,7 +40,8 @@ if not os.path.exists('tmp'):
 
 
 # %%
-def fn_get_model():
+def fn_model():
+  clear_session()
   # input layer
   i = Input(shape=(300, 300, 3))
   # first convolution layer
@@ -57,7 +59,7 @@ def fn_get_model():
   # fifth convolution layer
   x = Conv2D(128, (3, 3), activation='relu')(x)
   x = MaxPooling2D(2)(x)
-  # deep nural network for classification
+  # deep neural network for classification
   x = Flatten()(x)
   x = Dense(512, activation='relu')(x)
   o = Dense(1, activation='sigmoid')(x)
@@ -69,20 +71,14 @@ def fn_get_model():
   return md
 
 
-# %%
-def fn_train():
-  clear_session()
+# %% get dataset
+def fn_dataset():
   # training data
   print('train dataset count =>')
-  print('\t cat:', len(glob(f'{DATA_PATH}/train/cats/*')))
-  print('\t dog:', len(glob(f'{DATA_PATH}/train/dogs/*')))
+  print('\t horse', len(glob(f'{DATA_PATH}/train/horses/*')))
+  print('\t humans', len(glob(f'{DATA_PATH}/train/humans/*')))
 
-  # validation dataset
-  print('validation dataset count =>')
-  print('\t cat:', len(glob(f'{DATA_PATH}/validation/cats/*')))
-  print('\t dog:', len(glob(f'{DATA_PATH}/validation/dogs/*')))
-
-  train_datagen = ImageDataGenerator(
+  train_data_generator = ImageDataGenerator(
       rescale=1.0 / 255,
       rotation_range=50,
       width_shift_range=0.2,
@@ -91,40 +87,49 @@ def fn_train():
       zoom_range=0.2,
       horizontal_flip=True,
   )  # Apply data augmentation
-  train_generator = train_datagen.flow_from_directory(f'{DATA_PATH}/train',
-                                                      target_size=(300, 300),
-                                                      batch_size=32,
-                                                      class_mode='binary')
+  train_data = train_data_generator.flow_from_directory(
+      os.path.join(DATA_PATH, 'train'),  # Source directory for training images
+      target_size=(300, 300),  # All images will be resized to 300x300
+      batch_size=32,
+      class_mode='binary',  # To use binary_crossentropy loss, labels = binary
+  )
 
-  valid_datagen = ImageDataGenerator(rescale=1.0 / 255)
-  valid_generator = valid_datagen.flow_from_directory(f'{DATA_PATH}/validation',
-                                                      target_size=(300, 300),
-                                                      batch_size=32,
-                                                      class_mode='binary')
+  # validation dataset
+  print('validation dataset count =>')
+  print('\t horse', len(glob(f'{DATA_PATH}/validation/horses/*')))
+  print('\t humans', len(glob(f'{DATA_PATH}/validation/humans/*')))
 
-  model = fn_get_model()
-  model.summary()
-  r = model.fit(
-      train_generator,
-      steps_per_epoch=8,
-      callbacks=[EarlyStopping(patience=5, restore_best_weights=True)],
-      epochs=15,
-      verbose=1,
-      validation_data=valid_generator,
-      validation_steps=8)
-  fit_curves(r)
+  validation_data_generator = ImageDataGenerator(rescale=1.0 / 255)
+  validation_data = validation_data_generator.flow_from_directory(
+      os.path.join(DATA_PATH, 'validation'),  # Directory for validation images
+      target_size=(300, 300),  # All images will be resized to 300x300
+      batch_size=32,
+      class_mode='binary',  # To use binary_crossentropy loss, labels = binary
+  )
 
-  # model complete save
-  model.save(MODEL_SAVE_PATH)
+  return train_data, validation_data
 
 
-def fn_test():
-  clear_session()
-  image = img_to_array(load_img(glob(f'{DATA_PATH}/train/cats/*')[0]))
-  # load model here
-  model = load_model(MODEL_SAVE_PATH)
-  print(model.predict([image])[0])
+# %% train model
+dataset = fn_dataset()
+model = fn_model()
+model.summary()
+r = model.fit(dataset[0],
+              steps_per_epoch=8,
+              callbacks=[EarlyStopping(patience=5, restore_best_weights=True)],
+              epochs=15,
+              verbose=1,
+              validation_data=dataset[1],
+              validation_steps=8)
+fit_curves(r)
 
+# model complete save
+model.save(MODEL_SAVE_PATH)
 
-if __name__ == '__main__':
-  fn_train()
+# %% load saved model and test on an image
+clear_session()
+# load model here
+md = load_model(MODEL_SAVE_PATH)
+
+image = img_to_array(load_img(glob(f'{DATA_PATH}/train/horses/*')[0])) / 255.0
+print(md.predict(np.array([image]))[0])

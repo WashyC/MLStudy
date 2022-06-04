@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "christian-kohler.path-intellisense",
+    "eamodio.gitlens",
+    "editorconfig.editorconfig",
+    "esbenp.prettier-vscode",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-toolsai.jupyter",
+    "njpwerner.autodocstring",
+    "njqdev.vscode-python-typehint",
+    "streetsidesoftware.code-spell-checker",
+    "visualstudioexptteam.intellicode-api-usage-examples",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "wayou.vscode-todo-highlight"
+  ]
+}

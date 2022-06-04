@@ -1,6 +1,9 @@
 """ cnn.py
+implementation of cnn
 """
+
 # %%
+from helper.plot import fit_curves
 from matplotlib import pyplot as plt
 from tensorflow.keras.backend import clear_session
 from tensorflow.keras.datasets import fashion_mnist
@@ -9,8 +12,6 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Reshape
 from tensorflow.keras.models import Sequential
-
-from helper.plot import fit_curves
 
 # %% prepare the dataset
 (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
@@ -41,7 +42,7 @@ def fn_simple_model():
   md.evaluate(x_test, y_test)
 
 
-# deep nural network with one hidden network
+# deep neural network with one hidden network
 def fn_ann_model():
   clear_session()
   md = Sequential([
@@ -56,7 +57,7 @@ def fn_ann_model():
   md.evaluate(x_test, y_test)
 
 
-# convolutional nural network
+# Convolutional neural network
 # cnn for feature extraction
 # one hidden network for classification
 def fn_cnn_model():
@@ -78,10 +79,8 @@ def fn_cnn_model():
 
 
 # %%
-if __name__ == '__main__':
-  # %%
-  fn_simple_model()
-  # %%
-  fn_ann_model()
-  # %%
-  fn_cnn_model()
+fn_simple_model()
+# %%
+fn_ann_model()
+# %%
+fn_cnn_model()
